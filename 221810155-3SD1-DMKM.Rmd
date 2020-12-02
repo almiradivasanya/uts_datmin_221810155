@@ -1,0 +1,55 @@
+---
+title: "uts datmin"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r}
+
+#sintaX KNN#
+library(lattice)
+library(ggplot2)
+library(caret)
+library(e1071)
+library(readxl)
+
+library(readxl)
+
+#TAHAP INPUT DATA
+data <- read_excel("C:/Users/LENOVO/Downloads/data.xlsx")
+View(data)
+
+data$status <- as.factor(data$status)
+class(data$status)
+#Pembagian data training dan data test 70% data training dan 30% data test
+fungsi <- sample(2, nrow(data), replace = TRUE, prob = c(0.7,0.3))
+
+training <- data[fungsi == 1, ]
+testing <- data[fungsi == 2, ]
+testing
+
+crosval <- trainControl(method =  "repeatedcv", number = 3, repeats = 3)
+
+#melakukan running data dengan metode knn
+set.seed(30)
+data_knn <- train(status~., data = training, method ='knn',
+                  tuneGrid = expand.grid(k=2:10), trControl = crosval,
+                  preProc= c('center', 'scale'))
+
+data_knn
+
+data_prediksi <- predict(data_knn, newdata =testing)
+data_prediksi
+
+#confusion matrix
+confusionMatrix(data_prediksi, as.factor(testing$status))
+
+#plot dari hasil akurasi untuk kategori 2 sampai 10
+plot(data_knn, main="Grafik akbrasi", xlab = "Nilai k", ylab = "akurasi")
+
+
+
+```
+
+
